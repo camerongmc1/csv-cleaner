@@ -1,22 +1,69 @@
 import csv
+from pathlib import Path
 
-input_filename = input("What is your file name/path? ")
 
-with open(input_filename, 'r', newline='', encoding="utf-8") as file:
-    csvreader = csv.reader(file)
+def main():
+    input_filename = input("What is your file name/path? ")
+    input_path = Path(input_filename).resolve()
 
-    csvrows = []
+    try:
+        csv_rows = read_csv(input_path)
+    except FileNotFoundError:
+        print(f"Error: The input file '{input_filename}' could not be found.")
+        return
+    
+    input_data_rows = len(csv_rows) - 1
 
-    for row in csvreader:
-        csvrows.append(row)
+    cleaned_rows = clean_rows(csv_rows)
+    output_data_rows = len(cleaned_rows) - 1
 
+    valid_filename = False
+    while not valid_filename:
+        output_filename = input("What would you like your output filename to be (for example: output.csv)? ")
+        output_path = Path(output_filename).resolve()
+
+        if output_path != input_path:
+            if not output_path.exists():
+                valid_filename = True
+            else:
+                while True:
+                    approval = input("The file you entered already exists, are you sure you want to overwrite (y/n)? ")
+
+                    if approval.lower().strip() == "y":
+                        valid_filename = True
+                        break
+                    elif approval.lower().strip() == "n":
+                        print("Please enter a new filename.")
+                        break
+                    else:
+                        print("Please enter a valid answer.")
+        else:
+            print("Output file cannot be the same as input file.")
+
+    write_csv(output_path, cleaned_rows)
+
+    print("CSV cleaning complete!")
+    print(f"Data rows processed: {input_data_rows}")
+    print(f"Duplicate rows removed: {input_data_rows - output_data_rows}")
+    print(f"Data rows written: {output_data_rows}")
+    print(f"Output saved to: {output_path}")
+
+
+def read_csv(input_path):
+    with open(input_path, 'r', newline='', encoding="utf-8") as file:
+        csv_reader = csv.reader(file)
+
+        return list(csv_reader)
+
+
+def clean_rows(rows):
     cleaned_rows = []
 
-    for row in csvrows:
+    for row in rows:
         cleaned_row = []
 
-        for data in row:
-            cleaned_row.append(data.strip())
+        for value in row:
+            cleaned_row.append(value.strip())
 
         cleaned_rows.append(cleaned_row)
 
@@ -26,10 +73,14 @@ with open(input_filename, 'r', newline='', encoding="utf-8") as file:
         if row not in unique_rows:
             unique_rows.append(row)
 
+    return unique_rows
 
-output_filename = input("What would you like your output filename to be? ")
 
-with open(output_filename, 'w', newline='', encoding="utf-8") as file:
-    csvwriter = csv.writer(file)
+def write_csv(output_path, rows):
+    with open(output_path, 'w', newline='', encoding="utf-8") as file:
+        csv_writer = csv.writer(file)
 
-    csvwriter.writerows(unique_rows)
+        csv_writer.writerows(rows)
+
+
+main()
