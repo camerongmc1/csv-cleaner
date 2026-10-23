@@ -11,11 +11,27 @@ def main():
     except FileNotFoundError:
         print(f"Error: The input file '{input_filename}' could not be found.")
         return
-    
-    input_data_rows = len(csv_rows) - 1
+
+    while True:
+        has_header_input = input("Does the input file have a header (y/n)? ")
+
+        if has_header_input.lower().strip() == "y":
+            has_header = True
+            break
+        elif has_header_input.lower().strip() == "n":
+            has_header = False
+            break
+
+    input_data_rows = len(csv_rows)
+
+    if has_header and input_data_rows > 0:
+        input_data_rows -= 1
 
     cleaned_rows = clean_rows(csv_rows)
-    output_data_rows = len(cleaned_rows) - 1
+    output_data_rows = len(cleaned_rows)
+
+    if has_header and output_data_rows > 0:
+        output_data_rows -= 1
 
     valid_filename = False
     while not valid_filename:
@@ -42,9 +58,10 @@ def main():
 
     write_csv(output_path, cleaned_rows)
 
+    duplicates_removed = len(csv_rows) - len(cleaned_rows)
     print("CSV cleaning complete!")
     print(f"Data rows processed: {input_data_rows}")
-    print(f"Duplicate rows removed: {input_data_rows - output_data_rows}")
+    print(f"Duplicate rows removed: {duplicates_removed}")
     print(f"Data rows written: {output_data_rows}")
     print(f"Output saved to: {output_path}")
 
