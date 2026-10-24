@@ -100,4 +100,5 @@ def write_csv(output_path, rows):
         csv_writer.writerows(rows)
 
 
-main()
+if __name__ == '__main__':
+    main()
