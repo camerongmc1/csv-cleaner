@@ -21,6 +21,8 @@ def main():
         elif has_header_input.lower().strip() == "n":
             has_header = False
             break
+        else:
+            print("Please enter a valid answer.")
 
     input_data_rows = len(csv_rows)
 
